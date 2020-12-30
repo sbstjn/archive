@@ -1,0 +1,61 @@
+name: Integration
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12'
+
+    - run: yarn
+
+    - run: yarn build
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12'
+
+    - run: yarn
+
+    - run: yarn test
+  version:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - build
+      - test
+    steps:
+    - uses: actions/checkout@v2
+    
+    - uses: cycjimmy/semantic-release-action@v2
+      name: Semantic Release
+      timeout-minutes: 2
+      id: semantic
+      with:
+        extra_plugins: |
+          @semantic-release/git
+          @semantic-release/changelog
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
