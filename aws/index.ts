@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
 import * as cdk from '@aws-cdk/core'
-import { ExampleStack } from './stacks/example'
+import { DriveStack } from './stacks/drive'
 
 const app = new cdk.App()
 
-new ExampleStack(app, 'Example', {
-  env: {
-    region: 'eu-central-1'
-  }
-})
+new DriveStack(app, 'Drive')
