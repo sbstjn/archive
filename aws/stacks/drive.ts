@@ -31,7 +31,8 @@ export class DriveStack extends cdk.Stack {
     bucket.grantRead(user)
     bucket.grantWrite(user)
 
-    new cdk.CfnOutput(this, 'DriveStorage', { value: bucket.bucketName })
-    new cdk.CfnOutput(this, 'UserAccessKey', { value: accessKey.ref })
+    // new cdk.CfnOutput(this, 'DriveStorage', { value: bucket.bucketName })
+    // new cdk.CfnOutput(this, 'UserAccessKey', { value: accessKey.ref })
+    // new cdk.CfnOutput(this, 'UserSecretAccessKey', { value: accessKey.attrSecretAccessKey })
   }
 }
