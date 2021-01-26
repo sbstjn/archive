@@ -49,6 +49,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: actions/cache@v2
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12'
+
     - name: Configure AWS credentials from Production account
       uses: aws-actions/configure-aws-credentials@v1
       with:
