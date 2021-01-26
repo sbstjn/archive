@@ -5,4 +5,6 @@ import { DriveStack } from './stacks/drive'
 
 const app = new cdk.App()
 
-new DriveStack(app, 'Drive')
+new DriveStack(app, 'Drive', {
+  env: { region: 'eu-central-1' }
+})

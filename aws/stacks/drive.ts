@@ -20,14 +20,16 @@ export class DriveStack extends cdk.Stack {
     })
 
     const user = new iam.User(this, 'Access', {})
+    const accessKey = new iam.CfnAccessKey(this, 'AccessKey', {
+      userName: user.userName,
+    })
+
+    key.grantDecrypt(user)
+    key.grantEncrypt(user)
 
     bucket.grantDelete(user)
     bucket.grantRead(user)
     bucket.grantWrite(user)
-
-    const accessKey = new iam.CfnAccessKey(this, 'AccessKey', {
-      userName: user.userName,
-    })
 
     new cdk.CfnOutput(this, 'DriveStorage', { value: bucket.bucketName })
     new cdk.CfnOutput(this, 'UserAccessKey', { value: accessKey.ref })
