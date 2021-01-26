@@ -27,7 +27,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs:
       - build
-      - test
     steps:
     - uses: actions/checkout@v2
     
