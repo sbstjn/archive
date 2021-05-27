@@ -1,10 +1,25 @@
 #!/usr/bin/env node
 
 import * as cdk from '@aws-cdk/core'
-import { DriveStack } from './stacks/drive'
+
+import { ArchiveStack } from './stacks/archive'
+
+const prefix = 'sbstjn'
+const option = {
+  prefix,
+  env: {
+    account: '766153593312',
+    region: 'eu-central-1'
+  },
+  replications: [
+    'eu-west-1',
+    'eu-north-1'
+  ]
+}
 
 const app = new cdk.App()
 
-new DriveStack(app, 'Drive', {
-  env: { region: 'eu-central-1' }
+new ArchiveStack(app, 'Archive', {
+  stackName: `${prefix}-archive`,
+  ...option
 })
