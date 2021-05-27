@@ -31,6 +31,11 @@ export class ArchiveStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN
     })
 
+    const role = new iam.Role(this, 'ReplicationRole', {
+      assumedBy: new iam.ServicePrincipal('s3.amazonaws.com'),
+      path: '/service-role/'
+    });
+
     new cdk.CfnStackSet(this, "StackSet", {
       stackSetName: `${props.prefix}-archive-replication`,
       permissionModel: "SELF_MANAGED",
@@ -38,6 +43,10 @@ export class ArchiveStack extends cdk.Stack {
         {
           parameterKey: 'Prefix',
           parameterValue: props.prefix
+        },
+        {
+          parameterKey: 'ReplicationRole',
+          parameterValue: role.roleArn
         }
       ],
       stackInstancesGroup: [
@@ -50,54 +59,113 @@ export class ArchiveStack extends cdk.Stack {
       ],
       templateBody:templateReplicationData,
     });
-    
 
-    // const role = new iam.Role(this, 'ReplicationRole', {
-    //   assumedBy: new iam.ServicePrincipal('s3.amazonaws.com'),
-    //   path: '/service-role/'
-    // });
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        resources: [
+          bucket.bucketArn
+        ],
+        actions: [
+          's3:GetReplicationConfiguration',
+          's3:ListBucket'
+        ]
+      })
+    );
 
-    // role.addToPolicy(new iam.PolicyStatement({
-    //   resources: [bucket.bucketArn],
-    //   actions: ['s3:GetReplicationConfiguration', 's3:ListBucket'] }));
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        resources: [
+          bucket.arnForObjects('*')
+        ],
+        actions: [
+          's3:GetObjectVersion',
+          's3:GetObjectVersionAcl',
+          's3:GetObjectVersionForReplication',
+          's3:GetObjectVersionTagging'
+        ]
+      })
+    );
 
-    // role.addToPolicy(new iam.PolicyStatement({
-    //   resources: [bucket.arnForObjects('*')],
-    //   actions: ['s3:GetObjectVersion', 's3:GetObjectVersionAcl', 's3:GetObjectVersionForReplication', 's3:GetObjectLegalHold', 's3:GetObjectVersionTagging', 's3:GetObjectRetention'] }));
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        resources: [
+          key.keyArn
+        ],
+        actions: [
+          'kms:Decrypt'
+        ]
+      })
+    );
 
-    // role.addToPolicy(new iam.PolicyStatement({
-    //   resources: [props.bucket.arnForObjects('*')],
-    //   actions: ['s3:ReplicateObject', 's3:ReplicateDelete', 's3:ReplicateTags', 's3:GetObjectVersionTagging'] }));
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        resources: props.replications.map(
+          region => `arn:aws:kms:${region}:${this.account}:alias/archive/replication`
+        ),
+        actions: [
+          'kms:Encrypt'
+        ]
+      })
+    );
 
-    // role.addToPolicy(new iam.PolicyStatement({
-    //   resources: [key.keyArn],
-    //   actions: ['kms:Decrypt'] }));
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        resources: props.replications.map(
+          region => `arn:aws:s3:::${props.prefix}-archive-replication-${region}/*`
+        ),
+        actions: [
+          's3:ReplicateDelete',
+          's3:ReplicateObject',
+          's3:ReplicateTags'
+        ]
+      })
+    );
 
-    // role.addToPolicy(new iam.PolicyStatement({
-    //   resources: [props.key.keyArn],
-    //   actions: ['kms:Encrypt'] }));
+    role.addToPolicy(
+      new iam.PolicyStatement({
+        resources: props.replications.map(
+          region => `arn:aws:s3:::${props.prefix}-archive-replication-${region}`
+        ),
+        actions: [
+          's3:List*',
+          's3:GetBucketVersioning',
+          's3:PutBucketVersioning'
+        ]
+      })
+    );
 
-    // Get the AWS CloudFormation resource
-    // const cfnBucket = bucket.node.defaultChild as s3.CfnBucket;
+    const cfnBucket = bucket.node.defaultChild as s3.CfnBucket;
 
-    // // Change its properties
-    // cfnBucket.replicationConfiguration = {
-    //   role: role.roleArn,
-    //   rules: [{
-    //     destination: {
-    //       bucket: props.bucket.bucketArn,
-    //       encryptionConfiguration: {
-    //         replicaKmsKeyId: props.key.keyArn
-    //       }
-    //     },
-    //     sourceSelectionCriteria: {
-    //       sseKmsEncryptedObjects: {
-    //         status: 'Enabled'
-    //       }
-    //     },
-    //     status: 'Enabled'
-    //   }]
-    // }
+    // Change its properties
+    cfnBucket.replicationConfiguration = {
+      role: role.roleArn,
+      rules: props.replications.map(
+        (region, index) => (
+          {
+            id: region,
+            destination: {
+              bucket: `arn:aws:s3:::${props.prefix}-archive-replication-${region}`,
+              encryptionConfiguration: {
+                replicaKmsKeyId: `arn:aws:kms:${region}:${this.account}:alias/archive/replication`
+              }
+            },
+            priority: index,
+            deleteMarkerReplication: {
+              status: 'Enabled'
+            },
+            filter: {
+              prefix: ''
+            },
+            sourceSelectionCriteria: {
+              sseKmsEncryptedObjects: {
+                status: 'Enabled'
+              }
+            },
+            status: 'Enabled'
+          }
+        )
+      )
+    }
 
     new cdk.CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new cdk.CfnOutput(this, 'BucketRegion', { value: this.region })

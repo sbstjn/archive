@@ -1,6 +1,8 @@
 Parameters:
   Prefix:
     Type: String
+  ReplicationRole:
+    Type: String
 
 Resources:
   Key:
@@ -15,6 +17,16 @@ Resources:
             Principal:
               AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
             Action: kms:*
+            Resource: '*'
+          - Sid: Replication
+            Effect: Allow
+            Principal:
+              AWS: !Ref ReplicationRole
+            Action:
+              - kms:Encrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
             Resource: '*'
 
   KeyAlias:

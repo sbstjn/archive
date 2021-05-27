@@ -20,5 +20,6 @@ const app = new cdk.App()
 
 new ArchiveStack(app, 'Archive', {
   stackName: `${prefix}-archive`,
+  terminationProtection: true,
   ...option
 })
