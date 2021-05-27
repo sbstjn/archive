@@ -54,3 +54,22 @@ Resources:
           ServerSideEncryptionByDefault:
             SSEAlgorithm: aws:kms
             KMSMasterKeyID: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:${KeyAlias}
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:DeleteBucket
+            Effect: Deny
+            Resource:
+              - !Sub ${Bucket.Arn}
+            Principal: '*'
+          - Action:
+              - s3:DeleteObjectVersion
+            Effect: Deny
+            Resource:
+              - !Sub ${Bucket.Arn}/*
+            Principal: '*'

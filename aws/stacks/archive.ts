@@ -31,6 +31,36 @@ export class ArchiveStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN
     })
 
+    bucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.DENY,
+        resources: [
+          bucket.bucketArn
+        ],
+        actions: [
+          's3:DeleteBucket'
+        ],
+        principals: [
+          new iam.AnyPrincipal()
+        ]
+      })
+    )
+
+    bucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.DENY,
+        resources: [
+          bucket.arnForObjects('*')
+        ],
+        actions: [
+          's3:DeleteObjectVersion'
+        ],
+        principals: [
+          new iam.AnyPrincipal()
+        ]
+      })
+    )
+
     const role = new iam.Role(this, 'ReplicationRole', {
       assumedBy: new iam.ServicePrincipal('s3.amazonaws.com'),
       path: '/service-role/'
