@@ -11,7 +11,9 @@
 
 ### Prerequisite
 
-To use CloudFormation StackSet with self-managed permissions, make sure to have the [two needed IAM roles](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html) in pleace.
+To use self-managed StackSets, you need to [create two IAM roles](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html) first.
+
+You can use these CloudFormation templates provided by AWS:
 
 - [AWSCloudFormationStackSetAdministrationRole.yml](https://s3.amazonaws.com/cloudformation-stackset-sample-templates-us-east-1/AWSCloudFormationStackSetAdministrationRole.yml)
 - [AWSCloudFormationStackSetExecutionRole.yml](https://s3.amazonaws.com/cloudformation-stackset-sample-templates-us-east-1/AWSCloudFormationStackSetExecutionRole.yml)
