@@ -1,6 +1,6 @@
-# Example for S3 Archive with replications
+# S3 Archive with Regional Replications
 
-> Create an Amazon S3 Bucket in your desired region and enable bucket replication for backups.
+> Use the AWS Cloud Development Kit to deploy an Amazon S3 Bucket in your desired region and enable regional bucket replications for backups.
 
 ## Architecture
 
@@ -9,7 +9,7 @@
 
 ## Usage
 
-### Prerequisite
+### Prerequisites
 
 To use self-managed StackSets, you need to [create two IAM roles](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html) first. You can create them manually using the AWS Management Console or use the official CloudFormation templates provided by AWS:
 
@@ -18,14 +18,13 @@ To use self-managed StackSets, you need to [create two IAM roles](https://docs.a
 
 ### Configuration
 
-Check `aws/index.ts` to configure your archive and replication:
+Modify `aws/index.ts` to configure your archive and replication:
 
 ```js
 const prefix = 'example'
 const option = {
   prefix,
   env: {
-    account: '123456789000',
     region: 'eu-central-1'
   },
   replications: [

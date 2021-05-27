@@ -8,7 +8,6 @@ const prefix = 'sbstjn'
 const option = {
   prefix,
   env: {
-    account: '766153593312',
     region: 'eu-central-1'
   },
   replications: [
