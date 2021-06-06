@@ -1,5 +1,8 @@
 # S3 Archive with Regional Replications
 
+[![MIT License](https://badgen.now.sh/badge/License/MIT/blue)](https://github.com/sbstjn/archive/blob/master/LICENSE.md)
+[![sbstjn.com](https://badgen.now.sh/badge/Read/Blog%20Post/purple)](https://sbstjn.com/blog/aws-cdk-s3-bucket-reginal-replication-kms/)
+
 > Use the AWS Cloud Development Kit to deploy an Amazon S3 Bucket in your desired region and enable regional bucket replications for backups.
 
 ## Architecture
