@@ -66,7 +66,7 @@ export class ArchiveStack extends cdk.Stack {
       path: '/service-role/'
     });
 
-    new cdk.CfnStackSet(this, "StackSet", {
+    const stackSet = new cdk.CfnStackSet(this, "StackSet", {
       stackSetName: `${props.prefix}-archive-replication`,
       permissionModel: "SELF_MANAGED",
       parameters: [
@@ -196,7 +196,7 @@ export class ArchiveStack extends cdk.Stack {
         )
       )
     }
-
+    cfnBucket.addDependsOn(stackSet);
     new cdk.CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new cdk.CfnOutput(this, 'BucketRegion', { value: this.region })
     new cdk.CfnOutput(this, 'BucketReplications', { value: props.replications.join(', ') })
