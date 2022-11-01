@@ -1,7 +1,7 @@
-import * as s3 from '@aws-cdk/aws-s3'
-import * as iam from '@aws-cdk/aws-iam'
-import * as kms from '@aws-cdk/aws-kms'
-import * as cdk from '@aws-cdk/core'
+import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as iam from 'aws-cdk-lib/aws-iam'
+import * as kms from 'aws-cdk-lib/aws-kms'
+import * as cdk from 'aws-cdk-lib';
 
 import * as fs from 'fs'
 import * as path from 'path'
@@ -66,7 +66,7 @@ export class ArchiveStack extends cdk.Stack {
       path: '/service-role/'
     });
 
-    new cdk.CfnStackSet(this, "StackSet", {
+    const stackSet = new cdk.CfnStackSet(this, "StackSet", {
       stackSetName: `${props.prefix}-archive-replication`,
       permissionModel: "SELF_MANAGED",
       parameters: [
@@ -196,7 +196,7 @@ export class ArchiveStack extends cdk.Stack {
         )
       )
     }
-
+    cfnBucket.addDependsOn(stackSet);
     new cdk.CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new cdk.CfnOutput(this, 'BucketRegion', { value: this.region })
     new cdk.CfnOutput(this, 'BucketReplications', { value: props.replications.join(', ') })
